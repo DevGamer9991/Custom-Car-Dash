@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="deps/gauge.min.js"></script>
+    <title>Main View</title>
+    
+    <style>
+
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgb(42, 42, 42);
+        }
+
+        body>h1{
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test</h1>
+    <canvas data-type="radial-gauge"
+        data-width="300"
+        data-height="300"
+        data-units="MPH"
+        data-title="false"
+        data-value="10"
+        data-min-value="0"
+        data-max-value="110"
+        data-major-ticks="0,10,20,30,40,50,60,70,80,90,100,110"
+        data-minor-ticks="10"
+        data-stroke-ticks="false"
+        data-highlights='[
+            { "from": 0, "to": 110, "color": "rgba(0,255,0,.15)" }
+        ]'
+        data-color-plate="#222"
+        data-color-major-ticks="#f5f5f5"
+        data-color-minor-ticks="#ddd"
+        data-color-title="#fff"
+        data-color-units="#ccc"
+        data-color-numbers="#eee"
+        data-color-needle-start="rgba(240, 128, 128, 1)"
+        data-color-needle-end="rgba(255, 160, 122, .9)"
+        data-value-box="true"
+        data-animation-rule="linear"
+        data-animation-duration="500"
+        data-font-value="Led"
+        data-animated-value="true"
+    ></canvas>
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+    var socket = io();
+
+    var gauge = document.querySelector("canvas")
+
+    socket.on('gaugeUpdate', function(msg) {
+        // console.log(msg)
+        // console.log(gauge.getAttribute("data-value"))
+        gauge.setAttribute("data-value", msg.value)
+    });
+    </script>
+</body>
+</html>
