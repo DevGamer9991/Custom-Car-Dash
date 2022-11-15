@@ -7,9 +7,11 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
+const OBDReader = require("./serial-obd/obd")
 
-var pollingRate = 1000;
+pollingRate = 1000;
 
+OBDReader.connect();
 
 app.use("/deps", express.static("deps"))
 app.use("/socket.io", express.static("node_modules/socket.io/client-dist/socket.io"))
@@ -31,9 +33,12 @@ function randomIntFromInterval(min, max) { // min and max included
 }
 
 setInterval(() => {
-    var num = randomIntFromInterval(0,110)
-    console.log(num)
-    io.emit('gaugeUpdate', { value: num, otherProperty: 'other value' })
+    var mph = randomIntFromInterval(0,110)
+    var rpm = randomIntFromInterval(0, 8)
+    var fuel = randomIntFromInterval(0, 100)
+    var temp = randomIntFromInterval(0, 100)
+
+    io.emit('gaugeUpdate', { mph: mph, rpm: rpm, fuel: fuel, temp: temp })
 }, pollingRate)
 
 console.log("Server Listening on Port 80")

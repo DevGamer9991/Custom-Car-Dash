@@ -20,53 +20,164 @@
             margin: 0;
             padding: 0;
             background-color: rgb(42, 42, 42);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
         }
 
-        body>h1{
-            color: white;
+        #wrapper {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            position: relative;
+            width: 100vw;
         }
+
+        #fuel {
+            position: absolute;
+            top: 0;
+        }
+
+        #temp {
+            position: absolute;
+            bottom: 0;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Test</h1>
-    <canvas data-type="radial-gauge"
-        data-width="300"
-        data-height="300"
-        data-units="MPH"
-        data-title="false"
-        data-value="10"
-        data-min-value="0"
-        data-max-value="110"
-        data-major-ticks="0,10,20,30,40,50,60,70,80,90,100,110"
-        data-minor-ticks="10"
-        data-stroke-ticks="false"
-        data-highlights='[
-            { "from": 0, "to": 110, "color": "rgba(0,255,0,.15)" }
-        ]'
-        data-color-plate="#222"
-        data-color-major-ticks="#f5f5f5"
-        data-color-minor-ticks="#ddd"
-        data-color-title="#fff"
-        data-color-units="#ccc"
-        data-color-numbers="#eee"
-        data-color-needle-start="rgba(240, 128, 128, 1)"
-        data-color-needle-end="rgba(255, 160, 122, .9)"
-        data-value-box="true"
-        data-animation-rule="linear"
-        data-animation-duration="500"
-        data-font-value="Led"
-        data-animated-value="true"
-    ></canvas>
+    <div id="wrapper">
+        <canvas id="fuel" data-type="radial-gauge"
+            data-width="200"
+            data-height="200"
+            data-units="Fuel Level"
+            data-title="false"
+            data-value="0"
+            data-min-value="0"
+            data-max-value="100"
+            data-major-ticks="0,50,100"
+            data-minor-ticks="10"
+            data-stroke-ticks="false"
+            data-highlights='[
+                { "from": 0, "to": 20, "color": "darkred" },
+                { "from": 20, "to": 100, "color": "rgba(0,255,0,.15)" }
+            ]'
+            data-color-plate="#222"
+            data-color-major-ticks="#f5f5f5"
+            data-color-minor-ticks="#ddd"
+            data-color-title="#fff"
+            data-color-units="#ccc"
+            data-color-numbers="#eee"
+            data-color-needle="#04A5DD"
+            data-color-needle-end="#04A5DD"
+            data-value-box="true"
+            data-animation-rule="linear"
+            data-animation-duration="500"
+            data-font-value="Led"
+            data-animated-value="true"
+        ></canvas>
+        <canvas id="rpm" data-type="radial-gauge"
+            data-width="500"
+            data-height="500"
+            data-units="RPM"
+            data-title="false"
+            data-value="0"
+            data-min-value="0"
+            data-max-value="8"
+            data-major-ticks="0,1,2,3,4,5,6,7,8"
+            data-minor-ticks="2"
+            data-stroke-ticks="false"
+            data-highlights='[
+                { "from": 0, "to": 8, "color": "rgba(0,255,0,.15)" }
+            ]'
+            data-color-plate="#222"
+            data-color-major-ticks="#f5f5f5"
+            data-color-minor-ticks="#ddd"
+            data-color-title="#fff"
+            data-color-units="#ccc"
+            data-color-numbers="#eee"
+            data-color-needle="#04A5DD"
+            data-color-needle-end="#04A5DD"
+            data-value-box="true"
+            data-animation-rule="linear"
+            data-animation-duration="500"
+            data-font-value="Led"
+            data-animated-value="true"
+        ></canvas>
+        <canvas id="mph" data-type="radial-gauge"
+            data-width="500"
+            data-height="500"
+            data-units="MPH"
+            data-title="false"
+            data-value="0"
+            data-min-value="0"
+            data-max-value="110"
+            data-major-ticks="0,10,20,30,40,50,60,70,80,90,100,110"
+            data-minor-ticks="10"
+            data-stroke-ticks="false"
+            data-highlights='[
+                { "from": 0, "to": 110, "color": "rgba(0,255,0,.15)" }
+            ]'
+            data-color-plate="#222"
+            data-color-major-ticks="#f5f5f5"
+            data-color-minor-ticks="#ddd"
+            data-color-title="#fff"
+            data-color-units="#ccc"
+            data-color-numbers="#eee"
+            data-color-needle="#04A5DD"
+            data-color-needle-end="#04A5DD"
+            data-value-box="true"
+            data-animation-rule="linear"
+            data-animation-duration="500"
+            data-font-value="Led"
+            data-animated-value="true"
+        ></canvas>
+        <canvas id="temp" data-type="radial-gauge"
+            data-width="200"
+            data-height="200"
+            data-units="Temp Level"
+            data-title="false"
+            data-value="0"
+            data-min-value="0"
+            data-max-value="100"
+            data-major-ticks="0,50,100"
+            data-minor-ticks="10"
+            data-stroke-ticks="false"
+            data-highlights='[
+                { "from": 0, "to": 20, "color": "darkred" },
+                { "from": 20, "to": 100, "color": "rgba(0,255,0,.15)" }
+            ]'
+            data-color-plate="#222"
+            data-color-major-ticks="#f5f5f5"
+            data-color-minor-ticks="#ddd"
+            data-color-title="#fff"
+            data-color-units="#ccc"
+            data-color-numbers="#eee"
+            data-color-needle="#04A5DD"
+            data-color-needle-end="#04A5DD"
+            data-value-box="true"
+            data-animation-rule="linear"
+            data-animation-duration="500"
+            data-font-value="Led"
+            data-animated-value="true"
+        ></canvas>
+    </div>
     <script src="socket.io/socket.io.js"></script>
     <script>
     var socket = io();
 
-    var gauge = document.querySelector("canvas")
+    var mphGauge = document.querySelector("#mph")
+    var rpmGauge = document.querySelector("#rpm")
+    var fuelGauge = document.querySelector("#fuel")
+    var tempGauge = document.querySelector("#temp")
 
     socket.on('gaugeUpdate', function(msg) {
-        // console.log(msg)
-        // console.log(gauge.getAttribute("data-value"))
-        gauge.setAttribute("data-value", msg.value)
+        mphGauge.setAttribute("data-value", msg.mph)
+        rpmGauge.setAttribute("data-value", msg.rpm)
+        fuelGauge.setAttribute("data-value", msg.fuel)
+        tempGauge.setAttribute("data-value", msg.temp)
     });
     </script>
 </body>
