@@ -14,10 +14,13 @@
  * (C) Copyright 2013, TNO
  * Author: Eric Smekens
  */
+
 'use strict';
+
 function bitDecoder(byte) {
     return parseInt(byte, 2);
 }
+
 function convertDTCCheck(byteA, byteB, byteC, byteD) {
     //ByteB, ByteC and ByteD are not read. These bytes are for testing purposes, which is not supported in this module.
     var byteValue, mil, numberOfDTCs, reply;
@@ -33,6 +36,7 @@ function convertDTCCheck(byteA, byteB, byteC, byteD) {
     reply.mil = mil;
     return reply;
 }
+
 function convertDTCRequest(byteA, byteB, byteC, byteD, byteE, byteF) {
     var reply = {};
     reply.errors = [];
@@ -75,33 +79,47 @@ function convertDTCRequest(byteA, byteB, byteC, byteD, byteE, byteF) {
     reply.errors[2] = decodeDTCCode(byteE, byteF);
     return reply;
 }
+
 function convertLoad(byte) {
     return parseInt(byte, 16) * (100 / 256);
 }
+
 function convertTemp(byte) {
     return parseInt(byte, 16) - 40;
 }
+
 function convertFuelTrim(byte) {
     return (parseInt(byte, 16) - 128) * (100 / 128);
 }
+
 function convertFuelRailPressure(byte) {
     return parseInt(byte, 16) * 3;
 }
+
 function convertIntakePressure(byte) {
     return parseInt(byte, 16);
 }
+
 function convertRPM(byteA, byteB) {
     return ((parseInt(byteA, 16) * 256) + parseInt(byteB, 16)) / 4;
 }
+
 function convertSpeed(byte) {
     return parseInt(byte, 16);
 }
+
+function convertSpeedMPH(byte) {
+    return parseInt(byte, 16) * 0.6213711;
+}
+
 function convertSparkAdvance(byte) {
     return (parseInt(byte, 16) / 2) - 64;
 }
+
 function convertAirFlowRate(byteA, byteB) {
     return (parseInt(byteA, 16) * 256.0) + (parseInt(byteB, 16) / 100);
 }
+
 function convertThrottlePos(byte) {
     return parseInt(byte, 16) * (100 / 255);
 }
@@ -116,27 +134,16 @@ function notSupported() {
     return;
 }
 //VIN
-function convertVIN_count(byte) {
+function convertVIN(byte) {
     return byte;
 }
-function convertVIN(byte) {
-    byte = byte.split("");
-	var tmp=[], vin="";
-	for(i in byte){
-		tmp[i] = parseInt(byte[i]);
-		tmp[i] = parseInt(tmp[i], 16);
-		vin += String.fromCharCode(tmp[i]);
-	}
-	return vin;
-}
 
-var responsePIDS;
 var modeRealTime = "01";
 var modeRequestDTC = "03";
 var modeClearDTC = "04";
 var modeVin = "09";
 
-responsePIDS = [
+var OBDData = [
     //Realtime data
     {mode: modeRealTime, pid: "00", bytes: 4, name: "pidsupp0",     description: "PIDs supported 00-20", min: 0, max: 0, unit: "Bit Encoded", convertToUseful: bitDecoder},
     {mode: modeRealTime, pid: "01", bytes: 4, name: "dtc_cnt",      description: "Monitor status since DTCs cleared", min: 0, max: 0, unit: "Bit Encoded", convertToUseful: convertDTCCheck},
@@ -151,7 +158,8 @@ responsePIDS = [
     {mode: modeRealTime, pid: "0A", bytes: 1, name: "frp",          description: "Fuel Rail Pressure (gauge)", min: -100, max: 99.22, unit: "%", convertToUseful: convertFuelRailPressure},
     {mode: modeRealTime, pid: "0B", bytes: 1, name: "map",          description: "Intake Manifold Absolute Pressure", min: 0, max: 765, unit: "kPa", convertToUseful: convertIntakePressure},
     {mode: modeRealTime, pid: "0C", bytes: 2, name: "rpm",          description: "Engine RPM", min: 0, max: 16383.75, unit: "rev/min", convertToUseful: convertRPM},
-    {mode: modeRealTime, pid: "0D", bytes: 1, name: "vss",          description: "Vehicle Speed Sensor", min: 0, max: 255, unit: "km/h", convertToUseful: convertSpeed},
+    //{mode: modeRealTime, pid: "0D", bytes: 1, name: "vss",          description: "Vehicle Speed Sensor", min: 0, max: 255, unit: "km/h", convertToUseful: convertSpeed},
+    {mode: modeRealTime, pid: "0D", bytes: 1, name: "vss",          description: "Vehicle Speed Sensor", min: 0, max: 160, unit: "mph", convertToUseful: convertSpeedMPH},
     {mode: modeRealTime, pid: "0E", bytes: 1, name: "sparkadv",     description: "Ignition Timing Advance for #1 Cylinder", min: -64, max: 63.5, unit: "degrees relative to #1 cylinder",  convertToUseful: convertSparkAdvance},
     {mode: modeRealTime, pid: "0F", bytes: 1, name: "iat",          description: "Intake Air Temperature", min: -40, max: 215, unit: "Celsius", convertToUseful: convertTemp},
     {mode: modeRealTime, pid: "10", bytes: 2, name: "maf",          description: "Air Flow Rate from Mass Air Flow Sensor", min: 0, max: 655.35, unit: "g/s", convertToUseful: convertAirFlowRate},
@@ -230,8 +238,8 @@ responsePIDS = [
 
     //VIN
     {mode: modeVin, pid: "00", bytes: 4, name: "vinsupp0", description: "Vehicle Identification Number", convertToUseful: bitDecoder},
-    {mode: modeVin, pid: "01", bytes: 1, name: "vin_mscout", description: "VIN message count", convertToUseful: convertVIN_count},
+    {mode: modeVin, pid: "01", bytes: 1, name: "vin", description: "Vehicle Identification Number", convertToUseful: convertVIN},
     {mode: modeVin, pid: "02", bytes: 1, name: "vin", description: "Vehicle Identification Number", convertToUseful: convertVIN}
 ];
 
-var exports = module.exports = responsePIDS;
+var exports = module.exports = OBDData;

@@ -11,6 +11,12 @@ const OBDReader = require("./serial-obd/obd")
 
 pollingRate = 1000;
 
+console.log(((parseInt("c3", 16) * 256) + parseInt("1f", 16)) / 4)
+
+console.log(Math.round(parseInt("70", 16) / 1.609344))
+
+console.log(parseInt("", 16))
+
 OBDReader.connect();
 
 app.use("/deps", express.static("deps"))
