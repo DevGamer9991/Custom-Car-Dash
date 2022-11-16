@@ -1,4 +1,9 @@
+const e = require('express');
 var { SerialPort, ReadlineParser } = require('serialport')
+const readline = require("readline").createInterface({
+    input: process.stdin,
+    output: process.stdout
+})
 
 var OBDdata = require("./obdInfo")
 
@@ -90,7 +95,13 @@ function parseOBDCommand(hexString) {
     return reply;
 }
 
-OBDReader.connect = async function (portName, options) {
+function ask() {
+    readline.question("\nInput Command: ", command => {
+        write(command, 1)
+    })
+}
+
+OBDReader.connect = async function (io) {
     var portName = "COM7"
     var port = new SerialPort({ path: portName, baudRate: 57600, dataBits: 8, stopBits: 1, parity: "none" })
 
@@ -130,17 +141,21 @@ OBDReader.connect = async function (portName, options) {
             }
         }, writeDelay);
 
+        ask()
+
         // port.write("ATH1")
         // port.write("010D")
     })
 
-    setInterval(() => write(getPIDByName("vss"), 1), 100)
+    // write(getPIDByName("vss"), 1)
+    write(getPIDByName("rpm"), 1)
     
     
     // const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }))
     // parser.on('data', console.log)
     
     port.on('data', function(data) {
+        console.log(data)
         var currentString = data.toString('utf8'), // making sure it's a utf8 string
             arrayOfCommands = currentString.split('>'),
             forString;
@@ -161,6 +176,14 @@ OBDReader.connect = async function (portName, options) {
                 var response = parseOBDCommand(messageString);
 
                 console.log(response.name + " = " + response.value)
+
+                io.emit(response.name, response.value)
+
+                if (response.name) {
+                    // write(getPIDByName(response.name), 1)
+                }
+
+                ask()
 
                 // self.emit('dataReceived', reply);
                 // if(self.debug) console.log('Data recieved: '+ reply.name +' = '+ reply.value);

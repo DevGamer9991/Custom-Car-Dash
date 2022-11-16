@@ -173,12 +173,22 @@
     var fuelGauge = document.querySelector("#fuel")
     var tempGauge = document.querySelector("#temp")
 
-    socket.on('gaugeUpdate', function(msg) {
-        mphGauge.setAttribute("data-value", msg.mph)
-        rpmGauge.setAttribute("data-value", msg.rpm)
-        fuelGauge.setAttribute("data-value", msg.fuel)
-        tempGauge.setAttribute("data-value", msg.temp)
+    socket.on('vss', function(msg) {
+        mphGauge.setAttribute("data-value", msg)
     });
+
+    socket.on("rpm", function(msg) {
+        msg = msg / 1000
+        rpmGauge.setAttribute("data-value", msg)
+    })
+
+    socket.on("fuel", function (msg) {
+        fuelGauge.setAttribute("data-value", msg)
+    })
+
+    socket.on("temp", function(msg) {
+        tempGauge.setAttribute("data-value", msg)
+    })
     </script>
 </body>
 </html>
