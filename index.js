@@ -9,15 +9,19 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-// const readline = require("readline").createInterface({
-//     input: process.stdin,
-//     output: process.stdout
-// })
+const dataValues = [
+    "rpm",
+    "vss"
+]
 
 const OBD = require("./serial-obd/obd")
 
 OBD.on("connection", () => {
     console.log("connection")
+
+    dataValues.forEach(element => {
+        OBD.write(element)
+    });
 })
 
 OBD.on("data", (data) => {
@@ -26,8 +30,13 @@ OBD.on("data", (data) => {
     console.log(data.name)
 })
 
+OBD.on("queueEmpty", function () {
+    dataValues.forEach(element => {
+        OBD.write(element)
+    });
+})
 
-OBD.connect("COM7");
+OBD.connect("COM3");
 
 pollingRate = 1000;
 
@@ -45,15 +54,6 @@ io.on('connection', (socket) => {
 app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "public/index.html"))
 });
-
-// setInterval(() => {
-//     var mph = randomIntFromInterval(0,110)
-//     var rpm = randomIntFromInterval(0, 8)
-//     var fuel = randomIntFromInterval(0, 100)
-//     var temp = randomIntFromInterval(0, 100)
-
-//     io.emit('gaugeUpdate', { mph: mph, rpm: rpm, fuel: fuel, temp: temp })
-// }, pollingRate)
 
 server.listen(8080, () => {
     console.log("Server Listening on Port 8080")

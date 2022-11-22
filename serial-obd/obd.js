@@ -3,7 +3,6 @@ var { SerialPort } = require('serialport')
 var { EventEmitter } = require("node:events")
 
 var OBDdata = require("./obdInfo");
-const { resolve } = require('node:path');
 
 var queue = [];
 
@@ -35,7 +34,6 @@ function parseOBDCommand(hexString) {
     reply = {};
     if (hexString === "NO DATA" || hexString === "OK" || hexString === "?") { //No data or OK is the response.
         reply.value = hexString;
-        // console.log(reply)
         return reply;
     }
 
@@ -128,7 +126,6 @@ OBD.connect = async function (portName) {
         write("050001")
         write("ATH1")
         write("0100")
-        // write("ATH0")
         write("ATBRT0F")
         write("ATBRD45")
 
@@ -145,26 +142,20 @@ OBD.connect = async function (portName) {
                 catch(err) {
                     console.log('Error while writing: ' + err);
                     clearInterval(intervalWriter);
-                    // self.removeAllMonitors();
                 }
             }
         }, writeDelay);
 
-        OBD.emit("connection")
+        queueInterval = setInterval(function() {
+            if (queue.length == 0 && connected) {
+                OBD.emit("queueEmpty")
+            }
+        }, 100)
 
-        // port.write("ATH1")
-        // port.write("010D")
+        OBD.emit("connection");
     })
-
-    // write(getPIDByName("vss"), 1)
-    // write(getPIDByName("rpm"), 1)
-    
-    
-    // const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }))
-    // parser.on('data', console.log)
     
     port.on('data', function(data) {
-        // console.log(data)
         var currentString = data.toString('utf8'), // making sure it's a utf8 string
             arrayOfCommands = currentString.split('>'),
             forString;
@@ -184,14 +175,7 @@ OBD.connect = async function (portName) {
 
                 var response = parseOBDCommand(messageString);
 
-                // console.log(response.name + " = " + response.value)
-
                 OBD.emit("data", { name: response.name, value: response.value })
-
-                // fs.appendFile("log.txt", response.name + " = " + response.value, () => {})
-
-                // self.emit('dataReceived', reply);
-                // if(self.debug) console.log('Data recieved: '+ reply.name +' = '+ reply.value);
             }
         }
     });
