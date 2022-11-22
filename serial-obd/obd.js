@@ -1,19 +1,19 @@
-const e = require('express');
-var { SerialPort, ReadlineParser } = require('serialport')
-const readline = require("readline").createInterface({
-    input: process.stdin,
-    output: process.stdout
-})
+var { SerialPort } = require('serialport')
 
-var OBDdata = require("./obdInfo")
+var { EventEmitter } = require("node:events")
+
+var OBDdata = require("./obdInfo");
+const { resolve } = require('node:path');
 
 var queue = [];
-
-var OBDReader = {};
 
 var connected = false;
 
 var intervalWriter;
+
+class OBDEmitter extends EventEmitter {};
+
+const OBD = new OBDEmitter();
 
 function getPIDByName(name) {
     for(var i = 0; i < OBDdata.length; i++){
@@ -27,10 +27,6 @@ function getPIDByName(name) {
     }
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function parseOBDCommand(hexString) {
     var reply,
         byteNumber,
@@ -39,7 +35,7 @@ function parseOBDCommand(hexString) {
     reply = {};
     if (hexString === "NO DATA" || hexString === "OK" || hexString === "?") { //No data or OK is the response.
         reply.value = hexString;
-        console.log(reply)
+        // console.log(reply)
         return reply;
     }
 
@@ -95,15 +91,8 @@ function parseOBDCommand(hexString) {
     return reply;
 }
 
-function ask() {
-    readline.question("\nInput Command: ", command => {
-        write(command, 1)
-    })
-}
-
-OBDReader.connect = async function (io) {
-    var portName = "COM7"
-    var port = new SerialPort({ path: portName, baudRate: 57600, dataBits: 8, stopBits: 1, parity: "none" })
+OBD.connect = async function (portName) {
+    var port = new SerialPort({ path: portName, baudRate: 38400, dataBits: 8, stopBits: 1, parity: "none" })
 
     port.on("close", function(err) {
         if(this.debug) console.log('Serial port ['+ portName +'] was closed');
@@ -116,12 +105,32 @@ OBDReader.connect = async function (io) {
 
         var waitVal = 100
 
-        write("ATL0")
-        write("ATS0")
-        write("ATH0")
-        write("ATE0")
-        write("ATAT2")
+        write("ATZ")
         write("ATSP0")
+        write("ATE0")
+        write("ATL0")
+        write("ATST19")
+        write("ATRV")
+        write("AT@2")
+        write("AT@1")
+        write("0100")
+        write("0120")
+        write("011C")
+        write("0113")
+        write("0600")
+        write("0900")
+        write("08000000000000")
+        write("ATDP")
+        write("ATDPN")
+        write("A2")
+        write("0101")
+        write("020000")
+        write("050001")
+        write("ATH1")
+        write("0100")
+        // write("ATH0")
+        write("ATBRT0F")
+        write("ATBRD45")
 
         var writeDelay = 100
 
@@ -141,21 +150,21 @@ OBDReader.connect = async function (io) {
             }
         }, writeDelay);
 
-        ask()
+        OBD.emit("connection")
 
         // port.write("ATH1")
         // port.write("010D")
     })
 
     // write(getPIDByName("vss"), 1)
-    write(getPIDByName("rpm"), 1)
+    // write(getPIDByName("rpm"), 1)
     
     
     // const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }))
     // parser.on('data', console.log)
     
     port.on('data', function(data) {
-        console.log(data)
+        // console.log(data)
         var currentString = data.toString('utf8'), // making sure it's a utf8 string
             arrayOfCommands = currentString.split('>'),
             forString;
@@ -175,23 +184,21 @@ OBDReader.connect = async function (io) {
 
                 var response = parseOBDCommand(messageString);
 
-                console.log(response.name + " = " + response.value)
+                // console.log(response.name + " = " + response.value)
 
-                io.emit(response.name, response.value)
+                OBD.emit("data", { name: response.name, value: response.value })
 
-                if (response.name) {
-                    // write(getPIDByName(response.name), 1)
-                }
-
-                ask()
+                // fs.appendFile("log.txt", response.name + " = " + response.value, () => {})
 
                 // self.emit('dataReceived', reply);
                 // if(self.debug) console.log('Data recieved: '+ reply.name +' = '+ reply.value);
             }
         }
     });
+}
 
-    // port.open();
+OBD.write = function (name) {
+    write(getPIDByName(name), 1)
 }
 
 function write(message, replies) {
@@ -210,4 +217,4 @@ function write(message, replies) {
     }
 }
 
-module.exports = OBDReader;
+module.exports = OBD;

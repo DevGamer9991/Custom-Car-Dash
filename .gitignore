@@ -102,3 +102,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Test Log File for OBD2 Output
+log.txt

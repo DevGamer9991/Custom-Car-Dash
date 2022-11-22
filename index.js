@@ -2,6 +2,8 @@ const express = require("express")
 const path = require("path")
 const app = express();
 
+var exec = require("child_process").exec;
+
 const http = require('http');
 const server = http.createServer(app);
 const { Server } = require("socket.io");
@@ -12,17 +14,22 @@ const io = new Server(server);
 //     output: process.stdout
 // })
 
-const OBDReader = require("./serial-obd/obd")
+const OBD = require("./serial-obd/obd")
+
+OBD.on("connection", () => {
+    console.log("connection")
+})
+
+OBD.on("data", (data) => {
+    io.emit(data.name, data.value)
+
+    console.log(data.name)
+})
+
+
+OBD.connect("COM7");
 
 pollingRate = 1000;
-
-console.log(((parseInt("c3", 16) * 256) + parseInt("1f", 16)) / 4)
-
-console.log(Math.round(parseInt("70", 16) / 1.609344))
-
-console.log(parseInt("", 16))
-
-OBDReader.connect(io);
 
 app.use("/deps", express.static("deps"))
 app.use("/socket.io", express.static("node_modules/socket.io/client-dist/socket.io"))
@@ -39,10 +46,6 @@ app.get("/*", (req, res) => {
     res.sendFile(path.join(__dirname, "public/index.html"))
 });
 
-function randomIntFromInterval(min, max) { // min and max included 
-    return Math.floor(Math.random() * (max - min + 1) + min)
-}
-
 // setInterval(() => {
 //     var mph = randomIntFromInterval(0,110)
 //     var rpm = randomIntFromInterval(0, 8)
@@ -52,10 +55,10 @@ function randomIntFromInterval(min, max) { // min and max included
 //     io.emit('gaugeUpdate', { mph: mph, rpm: rpm, fuel: fuel, temp: temp })
 // }, pollingRate)
 
-// console.log("Server Listening on Port 80")
-// server.listen(80)
+server.listen(8080, () => {
+    console.log("Server Listening on Port 8080")
 
-// readline.question("Input Command:", command => {
-//     console.log(command);
-//     readline.close();
-// })
+    exec('"C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe" --kiosk http://localhost:8080', function () {
+
+    })
+})
