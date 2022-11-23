@@ -11,10 +11,12 @@ const io = new Server(server);
 
 const dataValues = [
     "rpm",
-    "vss"
+    "vss",
+    "fli",
+    "temp"
 ]
 
-const OBD = require("./serial-obd/obd")
+const OBD = require("./lib/obd")
 
 OBD.on("connection", () => {
     console.log("connection")
